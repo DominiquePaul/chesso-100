@@ -642,12 +642,13 @@ python -m src.record_lerobot_dataset \
   --teleop.type=so100_leader \
   --teleop.port=/dev/tty.usbmodem59700724381 \
   --teleop.id=doms_leader_arm \
-  --dataset.repo_id=dopaul/game_v1 \
+  --dataset.repo_id=dopaul/test_no_video \
   --dataset.num_episodes=50 \
   --dataset.single_task="Move the chess piece from red to blue" \
   --dataset.num_image_writer_processes=8 \
   --dataset.episode_time_s=15 \
   --dataset.reset_time_s=1 \
+  --dataset.video false \
   --resume true
 ```
 
@@ -666,7 +667,7 @@ python lerobot/lerobot/scripts/train.py \
     --policy.type=act \
     --dataset.repo_id=dopaul/100_rooks \
     --batch_size 8 \
-    --steps 200000 \
+    --steps 100000 \
     --eval_freq 20000 \
     --log_freq 200 \
     --dataset.video_backend=pyav \
@@ -674,8 +675,7 @@ python lerobot/lerobot/scripts/train.py \
     --save_freq 20_000 \
     --wandb.enable true \
     --wandb.entity 'dominique-paul' \
-    --wandb.project chesso \
-    --wandb.mode offline
+    --wandb.project chesso
 ```
 
 If you want to test the script with a smaller dataset you could use `dopaul/first_movement_test_v5`. It has 3 samples or reduce the batch size.

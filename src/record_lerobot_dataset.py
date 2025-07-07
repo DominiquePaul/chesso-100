@@ -449,16 +449,22 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
         annotation_folder.mkdir(parents=True, exist_ok=True)
         print(f"Annotation images will be saved to: {annotation_folder}")
 
+    save_episodes_in_end = True
+    all_episode_buffers = []
+
     for recorded_episodes in range(cfg.dataset.num_episodes):
         # Get a sample image for circle annotation
         sample_observation = robot.get_observation()
         circle_coords = []
+
+        # In this if block we 1) save the annotation image (one per episode) before showing popup
+        # so that we can use it as training data for chess piece detection data
+        # 2) show the popup to the user to annotate the image with 2 circles
+        # and then continue with recording the episode.
         if "context" in sample_observation:
             print(f"\nEpisode {dataset.num_episodes + 1}: Please annotate the image with 2 circles")
 
-            # Save the annotation image (one per episode) before showing popup
             if cfg.dataset.save_annotations and annotation_folder:
-                # Convert RGB to BGR for saving with OpenCV
                 save_image = cv2.cvtColor(sample_observation["context"], cv2.COLOR_RGB2BGR)
                 filename = f"episode_{dataset.num_episodes + 1:03d}.png"
                 image_path = annotation_folder / filename
@@ -471,7 +477,8 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
             else:
                 print("No circles placed - recording without annotation")
 
-        log_say(f"Recording episode {dataset.num_episodes}", cfg.play_sounds)
+        episode_idx = dataset.num_episodes + len(all_episode_buffers)
+        log_say(f"Recording episode {episode_idx}", cfg.play_sounds)
         record_loop(
             robot=robot,
             events=events,
@@ -510,10 +517,18 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
             dataset.clear_episode_buffer()
             continue
 
-        dataset.save_episode()
+        if not save_episodes_in_end:
+            dataset.save_episode()
+        else:
+            all_episode_buffers.append(dataset.episode_buffer)
+            dataset.episode_buffer = dataset.create_episode_buffer(episode_index=episode_idx + 1)
 
         if events["stop_recording"]:
             break
+
+    if save_episodes_in_end:
+        for episode_buffer in all_episode_buffers:
+            dataset.save_episode(episode_buffer)
 
     log_say("Stop recording", cfg.play_sounds, blocking=True)
 
