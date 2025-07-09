@@ -131,6 +131,8 @@ class DatasetRecordConfig:
     num_image_writer_threads_per_camera: int = 4
     # Save annotation images to artifacts folder for later labeling
     save_annotations: bool = False
+    # Save all episodes at the end instead of saving each episode individually during recording
+    save_episodes_in_end: bool = True
 
     def __post_init__(self):
         if self.single_task is None:
@@ -449,7 +451,7 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
         annotation_folder.mkdir(parents=True, exist_ok=True)
         print(f"Annotation images will be saved to: {annotation_folder}")
 
-    save_episodes_in_end = True
+    save_episodes_in_end = cfg.dataset.save_episodes_in_end
     all_episode_buffers = []
 
     for recorded_episodes in range(cfg.dataset.num_episodes):
@@ -461,8 +463,10 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
         # so that we can use it as training data for chess piece detection data
         # 2) show the popup to the user to annotate the image with 2 circles
         # and then continue with recording the episode.
+        episode_idx = dataset.num_episodes + len(all_episode_buffers)
+
         if "context" in sample_observation:
-            print(f"\nEpisode {dataset.num_episodes + 1}: Please annotate the image with 2 circles")
+            print(f"\nEpisode {episode_idx}: Please annotate the image with 2 circles")
 
             if cfg.dataset.save_annotations and annotation_folder:
                 save_image = cv2.cvtColor(sample_observation["context"], cv2.COLOR_RGB2BGR)
@@ -477,7 +481,6 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
             else:
                 print("No circles placed - recording without annotation")
 
-        episode_idx = dataset.num_episodes + len(all_episode_buffers)
         log_say(f"Recording episode {episode_idx}", cfg.play_sounds)
         record_loop(
             robot=robot,
@@ -515,12 +518,14 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
             events["exit_early"] = False
             dataset._wait_image_writer()  # Wait for image writer to finish before clearing episode buffer
             dataset.clear_episode_buffer()
+            dataset.episode_buffer = dataset.create_episode_buffer(episode_index=episode_idx)
             continue
 
         if not save_episodes_in_end:
             dataset.save_episode()
         else:
-            all_episode_buffers.append(dataset.episode_buffer)
+            if dataset.episode_buffer["size"] > 0:
+                all_episode_buffers.append(dataset.episode_buffer)
             dataset.episode_buffer = dataset.create_episode_buffer(episode_index=episode_idx + 1)
 
         if events["stop_recording"]:
