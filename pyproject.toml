@@ -13,12 +13,14 @@ dependencies = [
     "chess",
     "datasets",
     "ffmpeg-python",
+    "google-generativeai>=0.8.5",
     "huggingface-hub",
     "ipykernel",
     "ipython",
     "kaggle",
     "kagglehub",
     "matplotlib",
+    "openai>=1.93.3",
     "opencv-python",
     "pillow",
     "pipwin",
@@ -68,3 +70,8 @@ exclude_dirs = ["tests"]
 # B101: assert_used, B601: paramiko_calls
 # B110: try-except-pass, B404: subprocess import, B607: partial path, B603: subprocess call
 skips = ["B101", "B601", "B110", "B404", "B607", "B603"]
+
+[dependency-groups]
+experiments = [
+    "openai>=1.93.3",
+]

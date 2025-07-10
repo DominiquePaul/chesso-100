@@ -678,6 +678,24 @@ python lerobot/lerobot/scripts/train.py \
     --wandb.project chesso
 ```
 
+Training on multiple datasets:
+
+```
+python lerobot/lerobot/scripts/train.py \
+    --policy.type=act \
+    --dataset.repo_id='["dopaul/game_v1", "dopaul/game_v2", "dopaul/game_v3", "dopaul/game_v4", "dopaul/game_v5", "dopaul/game_v6", "dopaul/game_v7", "dopaul/game_v8", "dopaul/game_v9", "dopaul/game_v10", "dopaul/game_v11", "dopaul/game_v12"]' \
+    --batch_size 8 \
+    --steps 100000 \
+    --eval_freq 20000 \
+    --log_freq 200 \
+    --dataset.video_backend=pyav \
+    --save_checkpoint true \
+    --save_freq 20_000 \
+    --wandb.enable true \
+    --wandb.entity 'dominique-paul' \
+    --wandb.project chesso
+```
+
 If you want to test the script with a smaller dataset you could use `dopaul/first_movement_test_v5`. It has 3 samples or reduce the batch size.
 
 ### Evaluate a policy
