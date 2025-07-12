@@ -678,24 +678,6 @@ python lerobot/lerobot/scripts/train.py \
     --wandb.project chesso
 ```
 
-Training on multiple datasets:
-
-```
-python lerobot/lerobot/scripts/train.py \
-    --policy.type=act \
-    --dataset.repo_id='["dopaul/game_v1", "dopaul/game_v2", "dopaul/game_v3", "dopaul/game_v4", "dopaul/game_v5", "dopaul/game_v6", "dopaul/game_v7", "dopaul/game_v8", "dopaul/game_v9", "dopaul/game_v10", "dopaul/game_v11", "dopaul/game_v12"]' \
-    --batch_size 8 \
-    --steps 100000 \
-    --eval_freq 20000 \
-    --log_freq 200 \
-    --dataset.video_backend=pyav \
-    --save_checkpoint true \
-    --save_freq 20_000 \
-    --wandb.enable true \
-    --wandb.entity 'dominique-paul' \
-    --wandb.project chesso
-```
-
 If you want to test the script with a smaller dataset you could use `dopaul/first_movement_test_v5`. It has 3 samples or reduce the batch size.
 
 ### Evaluate a policy
@@ -706,7 +688,7 @@ python -m src.record_lerobot_dataset \
   --robot.port=/dev/tty.usbmodem59700741781 \
   --robot.id=doms_follower_arm \
   --robot.cameras="{ context: {type: opencv, index_or_path: 0, width: 1920, height: 1080, fps: 30}, arm: {type: opencv, index_or_path: 1, width: 1920, height: 1080, fps: 30}}" \
-  --dataset.repo_id=dopaul/eval_100_rook_unclipped_act_20k \
+  --dataset.repo_id=dopaul/eval_1500_chess_moves_diffusion_100k \
   --dataset.num_episodes=25 \
   --dataset.single_task="Move the chess piece from red to blue" \
   --dataset.num_image_writer_processes=8 \
@@ -715,5 +697,5 @@ python -m src.record_lerobot_dataset \
   --teleop.type=so100_leader \
   --teleop.port=/dev/tty.usbmodem59700724381 \
   --teleop.id=doms_leader_arm \
-  --policy.path=dopaul/100_rooks_unclipped_act_20k
+  --policy.path=dopaul/1500_chess_moves_diffusion_100k
 ```
